@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Blog site</title>
+        <style>
+          body {
+            background: #393f4d;
+            color: #d4d4dc;
+          }
+          a{
+            color: #d4d4dc;
+          }
+          .existing-articles{
+            border: 2px solid #d4d4dc;
+            width: 100%;
+            margin: 5px;
+            
+          }
+          .article-container{
+            border: 1px solid;
+          }
+          .article-head{
+            display: flex;
+            justify-content: space-between;
+          }
+          .title {
+            text-align: left;
+            font-weight: bold;
+          }
+          .author {
+            text-align: right;
+            font-weight: 500;
+          }
+          .fade-effect{
+            opacity: 0.5;
+            transition: opacity .5s ease;
+          }
+          .fade-effect:hover{
+            opacity: 1;
+          }
+          .single-article{
+            border: 2px solid black;
+          }
+          .single-article-header {
+            text-align: center;
+          }
+          .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+          }
+
+          .form-row label {
+            width: 100px;
+            text-align: right;
+            margin-right: 10px;
+          }
+
+          .form-row input,
+          .form-row textarea {
+            flex: 1;
+          }
+          </style>          
+    </head>
+    <body>
+        <header>
+            <div clas="logo">
+                <a href="{{url_for('index')}}">
+                    <img 
+                        src="{{url_for('static', filename='logo.png')}}"
+                        alt="Logo"
+                        width="50"
+                        height="50"
+                    />
+                </a>
+            </div>
+            <div class="nav-items">
+                <a href="{{url_for('index')}}">Home</a>
+                <a href="{{url_for('about')}}">About</a>
+                <a href="{{url_for('contact')}}">Contact</a>
+                <a href="{{url_for('contribute')}}">Contribute</a>
+            </div>
+        </header>
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <div class="container">
+          {% for message in messages %}
+          <p>{{ message }} <a href="{{request.path}}">Dismiss</a></p>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %}
+        <main class="container">{% block content %}{% endblock content %}</main>
+    <footer class="container">
+      <p class="footer">
+        <a href="https://twitter.com" class="twitter" target="_blank"
+          >@sanyam jain</a
+        >,
+        <a href="https://altschoolafrica.com/schools/engineering"
+          >AltSchool Africa</a
+        >
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+      </p>
+    </footer>
+    </body>
+</html>

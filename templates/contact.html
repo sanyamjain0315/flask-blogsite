@@ -1,0 +1,32 @@
+{% extends 'base.html' %} {% block content %}
+<form action="{{url_for('contact')}}" method="POST">
+    <div>
+        <label for="name">Name:</label>
+        <input name="name" type="text" required>
+    </div>
+    <div>
+        <label for="email">email</label>
+        <input name="email" type="email" required>
+    </div>
+    <div>
+        <label for="title">title</label>
+        <input name="title" type="text" required>
+    </div>
+    <div>
+        <label for="message">message</label>
+        <textarea name="message" type="text" required></textarea>
+    </div>
+    <div>
+        <label for="priority">Priority</label>
+        <select name="priority">
+          <option value="low">Low</option>
+          <option value="normal" selected>Normal</option>
+          <option value="high">High</option>
+        </select>
+    </div>
+    <div>
+        <input type="submit" value="Send"/>
+    </div>
+</form>
+<br/>
+{% endblock content %}

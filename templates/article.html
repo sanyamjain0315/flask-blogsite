@@ -1,0 +1,7 @@
+{% extends 'base.html' %} {% block content %}
+    <div class="single-article">
+        <h3 class="single-article-header">{{ file_data['Title'] }}</h3>
+        <h4 class="single-article-header">{{ file_data['Author'] }}</h4>
+        <p>{{ file_data['Message'] }}</p>
+    </div>
+{% endblock content %}

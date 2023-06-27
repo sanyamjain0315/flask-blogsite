@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block content %}
+<div class="existing-articles">
+    {% for article in articles %}
+        <div class="article-container">
+            <div class="article-head">
+                <a href="{{ url_for('article', file_name=article) }}" class="title">{{ articles[article].Title }}</a>
+                <div class="author">{{ articles[article].Author }}</div>
+            </div>
+            <div class="article-content fade-effect">
+                <div class="json-value">{{articles[article].Message[:100]}}</div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}

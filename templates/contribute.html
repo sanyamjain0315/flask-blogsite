@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<form action="{{url_for('contribute')}}" method="POST">
+    <div class="form-row">
+        <label for="Author">Author:</label>
+        <input name="Author" type="text" required>
+    </div>
+    <div class="form-row">
+        <label for="Title">Title:</label>
+        <input name="Title" type="text" required>
+    </div>
+    <div class="form-row">
+        <label for="Message">Message:</label>
+        <textarea name="Message" type="text" required></textarea>
+    </div>
+    <div class="form-row">
+        <input type="submit" value="Send"/>
+    </div>
+</form>
+<br/>
+{% endblock content %}
