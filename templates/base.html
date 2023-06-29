@@ -67,7 +67,7 @@
     <body>
         <header>
             <div clas="logo">
-                <a href="{{url_for('index')}}">
+                <a href="{{url_for('home')}}">
                     <img 
                         src="{{url_for('static', filename='logo.png')}}"
                         alt="Logo"
@@ -76,12 +76,23 @@
                     />
                 </a>
             </div>
+            {% if 'user' in session %}
             <div class="nav-items">
-                <a href="{{url_for('index')}}">Home</a>
-                <a href="{{url_for('about')}}">About</a>
-                <a href="{{url_for('contact')}}">Contact</a>
-                <a href="{{url_for('contribute')}}">Contribute</a>
+              <a href="{{url_for('home')}}">Home</a>
+              <a href="{{url_for('about')}}">About</a>
+              <a href="{{url_for('contact')}}">Contact</label></a>
+              <a href="{{url_for('contribute')}}">Contribute</a>
+              <a href="{{url_for('logout')}}">Logout</a>
             </div>
+            {% else %}
+            <div class="nav-items">
+              <a href="{{url_for('home')}}">Home</a>
+              <a href="{{url_for('about')}}">About</a>
+              <a href="{{url_for('contact')}}">Contact</label></a>
+              <a href="{{url_for('signup')}}">Signup</a>
+              <a href="{{url_for('login')}}">Login</a>
+            </div>
+            {% endif %}
         </header>
         {% with messages = get_flashed_messages() %} {% if messages %}
         <div class="container">
