@@ -161,3 +161,4 @@ cython_debug/
 
 # Custom files
 firebase_config.json
+firebase-adminsdk.json

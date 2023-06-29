@@ -40,6 +40,7 @@ def signup():
         try:
             # {kind, idToken, email, refreshToken, expiresIn, localId}
             signup_user = auth.create_user_with_email_and_password(email, password)
+            auth.send_email_verification(signup_user['idToken'])
         except:
             flash("User already exists!")
             return redirect(url_for("home"))
@@ -57,8 +58,7 @@ def login():
         password = request.form.get('password')
         try:
             login_user = auth.sign_in_with_email_and_password(email, password)
-            auth.send_email_verification(login_user['idToken'])
-            session['user'] = email
+            session['user'] = login_user['idToken']
         except:
             flash("Invalid username or password")
             return redirect(url_for("login"))
