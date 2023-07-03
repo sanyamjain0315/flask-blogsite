@@ -3,11 +3,11 @@
     {% for article in articles %}
         <div class="article-container">
             <div class="article-head">
-                <a href="{{ url_for('article', file_name=article) }}" class="title">{{ articles[article].Title }}</a>
-                <div class="author">{{ articles[article].Author }}</div>
+                <a href="{{ url_for('article', file_name=article) }}" class="title">{{ article.blogs[0]['title'] }}</a>
+                <div class="author">{{ article['full_name'] }}</div>
             </div>
             <div class="article-content fade-effect">
-                <div class="json-value">{{articles[article].Message[:100]}}</div>
+                <div class="json-value">{{article.blogs[0]['content'][:100]}}</div>
             </div>
         </div>
     {% endfor %}

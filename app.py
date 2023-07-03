@@ -24,15 +24,28 @@ db_client = MongoClient(os.environ.get('MONGODB_URI'), server_api=ServerApi('1')
 db = db_client['blog_site']
 db_collection = db['blog_data']
 
+
+# @app.route('/')
+# def home():
+#     json_files = os.listdir("articles")
+#     articles = {}
+#     for file in json_files:
+#         file_path = os.path.join("articles", file)
+#         with open(file_path, 'r') as f:
+#             json_data = json.load(f)
+#             articles[file] = json_data
+#     return render_template('home.html', articles=articles)
+
 @app.route('/')
 def home():
-    json_files = os.listdir("articles")
-    articles = {}
-    for file in json_files:
-        file_path = os.path.join("articles", file)
-        with open(file_path, 'r') as f:
-            json_data = json.load(f)
-            articles[file] = json_data
+    # Get some random articles and pass them in a dict
+    random_blogs = db_collection.aggregate([
+        { "$sample": { "size": 7 } }
+    ])
+    articles = []
+    for document in random_blogs:
+        articles.append(document)
+    
     return render_template('home.html', articles=articles)
 
 @app.route('/about')
@@ -106,7 +119,7 @@ def contact():
         with open(f"feedback/{sender}/{datetime.now().timestamp()}.json", 'w') as f:
             json.dump(form_data, f)
         flash("Feedback recorded. Thanks for reaching out!")
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     
     return render_template("contact.html")
 
@@ -137,7 +150,7 @@ def article(file_name):
                 file_data = json.load(f)
         else:
             flash("ERROR")
-            return redirect(url_for('index'))
+            return redirect(url_for('home'))
     return render_template("article.html", file_data=file_data)
 
 if __name__ == "__main__":
