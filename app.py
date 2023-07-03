@@ -6,6 +6,8 @@ import json
 # External imports
 from flask import Flask, flash, render_template, url_for, request, redirect, session
 import pyrebase
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 
 app = Flask(__name__)
@@ -16,6 +18,11 @@ with open('firebase_config.json') as config_file:
     firebase_config = dict(json.load(config_file))
 firebase = pyrebase.initialize_app(firebase_config)
 auth = firebase.auth()
+
+# DB connection
+db_client = MongoClient(os.environ.get('MONGODB_URI'), server_api=ServerApi('1'))
+db = db_client['blog_site']
+db_collection = db['blog_data']
 
 @app.route('/')
 def home():
@@ -35,12 +42,23 @@ def about():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
+        username = request.form.get('username')
+        full_name = request.form.get('full_name')
         email = request.form.get('email')
         password = request.form.get('password')
         try:
             # {kind, idToken, email, refreshToken, expiresIn, localId}
             signup_user = auth.create_user_with_email_and_password(email, password)
             auth.send_email_verification(signup_user['idToken'])
+            
+            # Adding user in db
+            user_data = {
+                "username": username,
+                "full_name": full_name,
+                "email": email,
+                "blogs":[]
+            }
+            inserted_data = db_collection.insert_one(user_data)
         except:
             flash("User already exists!")
             return redirect(url_for("home"))
@@ -58,7 +76,9 @@ def login():
         password = request.form.get('password')
         try:
             login_user = auth.sign_in_with_email_and_password(email, password)
-            session['user'] = login_user['idToken']
+            user_data = db_collection.find({"email": email})
+            for document in user_data:
+                session['user'] = document.get('username')
         except:
             flash("Invalid username or password")
             return redirect(url_for("login"))
@@ -93,22 +113,19 @@ def contact():
 @app.route('/contribute', methods=['GET', 'POST'])
 def contribute():
     if request.method == 'POST':
-        form_data = dict(request.form)
-        Author = request.form.get('Author').replace(" ","_")
-        Title = request.form.get('Title')
-        Message = request.form.get('Message')
-        
         form_data = {
-            "Author": Author,
-            "Title": Title,
-            "Date_created": str(datetime.now().today()),
-            "Message": Message,
+            "title": request.form.get('title'),
+            "date_created": str(datetime.now().today()),
+            "content": request.form.get('content'),
         }
 
-        with open(f"articles/{Author}_{datetime.now().timestamp()}.json", 'w') as f:
-            json.dump(form_data, f)
+        db_collection.update_one(
+            {"username": session['user']},
+            {"$push": {"blogs": form_data}},
+            upsert=True
+        )
         flash("Thank you for contributing!")
-        return redirect(url_for("index"))
+        return redirect(url_for("home"))
     return render_template('contribute.html')
 
 @app.route('/article/<string:file_name>', methods=['GET', 'POST'])

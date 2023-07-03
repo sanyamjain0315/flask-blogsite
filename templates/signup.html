@@ -2,15 +2,11 @@
 <form action="{{url_for('signup')}}" method="POST">
     <div>
         <label for="username">Username:</label>
-        <input name="username" type="text" value="">
+        <input name="username" type="text" required>
     </div>
     <div>
-        <label for="first_name">First_name:</label>
-        <input name="first_name" type="text" value="">
-    </div>
-    <div>
-        <label for="last_name">Last_name:</label>
-        <input name="last_name" type="text" value="">
+        <label for="full_name">Full name:</label>
+        <input name="full_name" type="text" value="">
     </div>
     <div>
         <label for="email">Email:</label>
