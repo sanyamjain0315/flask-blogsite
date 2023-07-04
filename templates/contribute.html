@@ -2,16 +2,12 @@
 {% block content %}
 <form action="{{url_for('contribute')}}" method="POST">
     <div class="form-row">
-        <label for="Author">Author:</label>
-        <input name="Author" type="text" required>
+        <label for="title">Title:</label>
+        <input name="title" type="text" required>
     </div>
     <div class="form-row">
-        <label for="Title">Title:</label>
-        <input name="Title" type="text" required>
-    </div>
-    <div class="form-row">
-        <label for="Message">Message:</label>
-        <textarea name="Message" type="text" required></textarea>
+        <label for="content">Content:</label>
+        <textarea name="content" type="text" required></textarea>
     </div>
     <div class="form-row">
         <input type="submit" value="Send"/>

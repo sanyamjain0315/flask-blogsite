@@ -1,7 +1,9 @@
 {% extends 'base.html' %} {% block content %}
     <div class="single-article">
-        <h3 class="single-article-header">{{ file_data['Title'] }}</h3>
-        <h4 class="single-article-header">{{ file_data['Author'] }}</h4>
-        <p>{{ file_data['Message'] }}</p>
+        <h2 class="single-article-header">{{ blog_data['title'] }}</h2>
+        <h3 class="single-article-header">
+            <a href="{{ url_for('author', author_username=blog_data['author_username']) }}">{{ blog_data['author_name'] }}</a>
+        </h3>
+        <p>{{ blog_data['content'] }}</p>
     </div>
 {% endblock content %}
