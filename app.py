@@ -25,28 +25,17 @@ db = db_client['blog_site']
 db_collection = db['blog_data']
 
 
-# @app.route('/')
-# def home():
-#     json_files = os.listdir("articles")
-#     articles = {}
-#     for file in json_files:
-#         file_path = os.path.join("articles", file)
-#         with open(file_path, 'r') as f:
-#             json_data = json.load(f)
-#             articles[file] = json_data
-#     return render_template('home.html', articles=articles)
-
 @app.route('/')
 def home():
     # Get some random articles and pass them in a dict
-    random_blogs = db_collection.aggregate([
+    random_users = db_collection.aggregate([
         { "$sample": { "size": 7 } }
     ])
-    articles = []
-    for document in random_blogs:
-        articles.append(document)
+    authors = []
+    for document in random_users:
+        authors.append(document)
     
-    return render_template('home.html', articles=articles)
+    return render_template('home.html', authors=authors)
 
 @app.route('/about')
 def about():
@@ -126,8 +115,11 @@ def contact():
 @app.route('/contribute', methods=['GET', 'POST'])
 def contribute():
     if request.method == 'POST':
+        user_data = db_collection.find_one({"username": session['user']})
         form_data = {
             "title": request.form.get('title'),
+            "author_name": user_data.full_name,
+            "author_username": session['user'],
             "date_created": str(datetime.now().today()),
             "content": request.form.get('content'),
         }
@@ -141,17 +133,25 @@ def contribute():
         return redirect(url_for("home"))
     return render_template('contribute.html')
 
-@app.route('/article/<string:file_name>', methods=['GET', 'POST'])
-def article(file_name):
+@app.route('/article', methods=['GET', 'POST'])
+def article():
     if request.method == 'GET':
-        file_path = os.path.join("articles", file_name)
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as f:
-                file_data = json.load(f)
-        else:
-            flash("ERROR")
-            return redirect(url_for('home'))
-    return render_template("article.html", file_data=file_data)
+        try:
+            blog_title = request.args.get('blog_title')
+            author_username = request.args.get('author_username')
+            blog = db_collection.find_one({
+                "username": author_username,
+                "blogs.title": blog_title
+            }, {
+                "blogs.$": 1
+            })
+            if blog:
+                blog_data = blog["blogs"][0]
+        except:
+            flash("Error retrieving the document")
+            return redirect(url_for("home"))
+
+    return render_template("article.html", blog_data=blog_data)
 
 if __name__ == "__main__":
     app.run(debug=True)

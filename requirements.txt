@@ -1,3 +1,4 @@
+Faker==18.11.2
 Flask==2.3.2
 pymongo==4.4.0
 Pyrebase4==4.7.1
