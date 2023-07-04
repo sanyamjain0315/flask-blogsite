@@ -1,0 +1,21 @@
+{% extends 'base.html' %} {% block content %}
+    <div class="author-info-wrapper">
+        <h2 class="author-info">{{author_data.full_name}}</h2>
+        <h4 class="author-info">{{author_data.email}}</h4>
+    </div>
+    <div class="existing-articles">
+        {% for blog in author_data.blogs %}
+            <div class="article-container">
+                <div class="article-head">
+                    <a href="{{ url_for('article', blog_title=blog['title'], author_username=blog['author_username']) }}" class="title">{{ blog['title'] }}</a>
+                    <div class="author">
+                        <a href="{{ url_for('author', author_username=blog['author_username']) }}">{{ blog['author_name'] }}</a>
+                    </div>
+                </div>
+                <div class="article-content fade-effect">
+                    <div class="json-value">{{blog['content'][:100]}}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock content %}

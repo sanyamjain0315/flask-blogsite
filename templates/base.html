@@ -41,7 +41,7 @@
             opacity: 1;
           }
           .single-article{
-            border: 2px solid black;
+            border: 2px solid #d4d4dc;
           }
           .single-article-header {
             text-align: center;
@@ -62,6 +62,9 @@
           .form-row textarea {
             flex: 1;
           }
+          .author-info-wrapper{
+            line-height: 0.3;
+          }
           </style>          
     </head>
     <body>
@@ -79,16 +82,13 @@
             {% if 'user' in session %}
             <div class="nav-items">
               <a href="{{url_for('home')}}">Home</a>
-              <a href="{{url_for('about')}}">About</a>
-              <a href="{{url_for('contact')}}">Contact</label></a>
               <a href="{{url_for('contribute')}}">Contribute</a>
+              <a href="{{url_for('author', author_username=session['user'])}}">Profile</a>
               <a href="{{url_for('logout')}}">Logout</a>
             </div>
             {% else %}
             <div class="nav-items">
               <a href="{{url_for('home')}}">Home</a>
-              <a href="{{url_for('about')}}">About</a>
-              <a href="{{url_for('contact')}}">Contact</label></a>
               <a href="{{url_for('signup')}}">Signup</a>
               <a href="{{url_for('login')}}">Login</a>
             </div>

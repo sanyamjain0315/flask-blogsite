@@ -37,10 +37,6 @@ def home():
     
     return render_template('home.html', authors=authors)
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -93,32 +89,13 @@ def logout():
     session.pop('user')
     return redirect(url_for('home'))
 
-@app.route("/contact", methods=['GET', 'POST'])
-def contact():
-    if request.method == "POST":
-        form_data = dict(request.form)
-        sender = request.form.get('name')
-        email = request.form.get('email')
-        title = request.form.get('title')
-        message = request.form.get('message')
-        priority = request.form.get('priority')
-        
-        if not os.path.exists(f"feedback/{sender}"):
-            os.makedirs(f"feedback/{sender}")
-        with open(f"feedback/{sender}/{datetime.now().timestamp()}.json", 'w') as f:
-            json.dump(form_data, f)
-        flash("Feedback recorded. Thanks for reaching out!")
-        return redirect(url_for('home'))
-    
-    return render_template("contact.html")
-
 @app.route('/contribute', methods=['GET', 'POST'])
 def contribute():
     if request.method == 'POST':
         user_data = db_collection.find_one({"username": session['user']})
         form_data = {
             "title": request.form.get('title'),
-            "author_name": user_data.full_name,
+            "author_name": user_data['full_name'],
             "author_username": session['user'],
             "date_created": str(datetime.now().today()),
             "content": request.form.get('content'),
@@ -132,6 +109,13 @@ def contribute():
         flash("Thank you for contributing!")
         return redirect(url_for("home"))
     return render_template('contribute.html')
+
+@app.route('/author', methods=['GET', 'POST'])
+def author():
+    if request.method == 'GET':
+        author_username = request.args.get('author_username')
+        author_data =  db_collection.find_one({"username": author_username})
+    return render_template("author.html", author_data=author_data)
 
 @app.route('/article', methods=['GET', 'POST'])
 def article():

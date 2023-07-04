@@ -1,12 +1,13 @@
+# Script to generate dummy data for mongodb database
+
 from pymongo import MongoClient
 from faker import Faker
 from datetime import datetime
+import os
 
-# Replace the placeholder with your Atlas connection string
-uri = "mongodb://localhost:27017"
 
 # Set up the MongoDB client
-client = MongoClient(uri)
+client = MongoClient(os.environ.get('MONGODB_URI'))
 db = client['blog_site']
 db_collection = db['blog_data']
 
