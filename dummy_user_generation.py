@@ -41,7 +41,8 @@ for _ in range(100):
         "username": username,
         "full_name": full_name,
         "email": email,
-        "blogs": blogs
+        "blogs": blogs,
+        "view_history":[]
     }
 
     # Insert the user document into the collection

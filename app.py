@@ -134,6 +134,11 @@ def article():
         except:
             flash("Error retrieving the document")
             return redirect(url_for("home"))
+        if 'user' in session:
+            # Add article to view history
+            db_collection.update_one(
+                {"username": session['user']},
+                {"$push": {"view_history":blog_title}})
 
     return render_template("article.html", blog_data=blog_data)
 
