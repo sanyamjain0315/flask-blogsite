@@ -27,13 +27,24 @@ db_collection = db['blog_data']
 
 @app.route('/')
 def home():
-    # Get some random articles and pass them in a dict
-    random_users = db_collection.aggregate([
-        { "$sample": { "size": 7 } }
-    ])
-    authors = []
-    for document in random_users:
-        authors.append(document)
+    if 'user' in session:
+        # Recommend articles to user, unfinished yet so will do the same as else
+
+        # Get some random articles and pass them in a dict
+        random_users = db_collection.aggregate([
+            { "$sample": { "size": 7 } }
+        ])
+        authors = []
+        for document in random_users:
+            authors.append(document)
+    else:
+        # Get some random articles and pass them in a dict
+        random_users = db_collection.aggregate([
+            { "$sample": { "size": 7 } }
+        ])
+        authors = []
+        for document in random_users:
+            authors.append(document)
     
     return render_template('home.html', authors=authors)
 
