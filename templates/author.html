@@ -4,7 +4,7 @@
         <h4 class="author-info">{{author_data.email}}</h4>
     </div>
     <div class="existing-articles">
-        {% for blog in author_data.blogs %}
+        {% for blog in blog_data %}
             <div class="article-container">
                 <div class="article-head">
                     <a href="{{ url_for('article', blog_title=blog['title'], author_username=blog['author_username']) }}" class="title">{{ blog['title'] }}</a>

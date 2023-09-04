@@ -1,15 +1,15 @@
 {% extends 'base.html' %} {% block content %}
 <div class="existing-articles">
-    {% for author in authors %}
+    {% for blog in blogs %}
         <div class="article-container">
             <div class="article-head">
-                <a href="{{ url_for('article', blog_title=author.blogs[0]['title'], author_username=author['username']) }}" class="title">{{ author.blogs[0]['title'] }}</a>
+                <a href="{{ url_for('article', blog_title=blog['title'], author_username=blog['author_username']) }}" class="title">{{ blog['title'] }}</a>
                 <div class="author">
-                    <a href="{{ url_for('author', author_username=author['username']) }}">{{ author['full_name'] }}</a>
+                    <a href="{{ url_for('author', author_username=blog['author_username']) }}">{{ blog['author_name'] }}</a>
                 </div>
             </div>
             <div class="article-content fade-effect">
-                <div class="json-value">{{author.blogs[0]['content'][:100]}}</div>
+                <div class="json-value">{{blog['content'][:100]}}</div>
             </div>
         </div>
     {% endfor %}

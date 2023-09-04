@@ -22,7 +22,8 @@ auth = firebase.auth()
 # DB connection
 db_client = MongoClient(os.environ.get('MONGODB_URI'), server_api=ServerApi('1'))
 db = db_client['blog_site']
-db_collection = db['blog_data']
+user_collection = db['user_data']
+blog_collection = db['blog_data']
 
 
 @app.route('/')
@@ -31,22 +32,22 @@ def home():
         # Recommend articles to user, unfinished yet so will do the same as else
 
         # Get some random articles and pass them in a dict
-        random_users = db_collection.aggregate([
+        random_blogs = blog_collection.aggregate([
             { "$sample": { "size": 7 } }
         ])
-        authors = []
-        for document in random_users:
-            authors.append(document)
+        blogs = []
+        for document in random_blogs:
+            blogs.append(document)
     else:
         # Get some random articles and pass them in a dict
-        random_users = db_collection.aggregate([
+        random_blogs = blog_collection.aggregate([
             { "$sample": { "size": 7 } }
         ])
-        authors = []
-        for document in random_users:
-            authors.append(document)
+        blogs = []
+        for document in random_blogs:
+            blogs.append(document)
     
-    return render_template('home.html', authors=authors)
+    return render_template('home.html', blogs=blogs)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -65,9 +66,10 @@ def signup():
                 "username": username,
                 "full_name": full_name,
                 "email": email,
-                "blogs":[]
+                "blogs":[],
+                "view_history": []
             }
-            inserted_data = db_collection.insert_one(user_data)
+            inserted_data = user_collection.insert_one(user_data)
         except:
             flash("User already exists!")
             return redirect(url_for("home"))
@@ -85,10 +87,10 @@ def login():
         password = request.form.get('password')
         try:
             login_user = auth.sign_in_with_email_and_password(email, password)
-            user_data = db_collection.find({"email": email})
-            for document in user_data:
+            user_document = user_collection.find({"email": email})
+            for document in user_document:
                 session['user'] = document.get('username')
-        except:
+        except Exception as e:
             flash("Invalid username or password")
             return redirect(url_for("login"))
         flash("User logged in")
@@ -103,8 +105,10 @@ def logout():
 @app.route('/contribute', methods=['GET', 'POST'])
 def contribute():
     if request.method == 'POST':
-        user_data = db_collection.find_one({"username": session['user']})
-        form_data = {
+        user_data = user_collection.find_one({"username": session['user']})
+        
+        # Create a new blog document
+        blog_data = {
             "title": request.form.get('title'),
             "author_name": user_data['full_name'],
             "author_username": session['user'],
@@ -112,11 +116,19 @@ def contribute():
             "content": request.form.get('content'),
         }
 
-        db_collection.update_one(
+        # Insert the blog document into the blog_data collection
+        result = blog_collection.insert_one(blog_data)
+        
+        # Retrieve the inserted blog's _id
+        inserted_blog_id = result.inserted_id
+
+        # Update the user_data document with the reference to the inserted blog's _id
+        user_collection.update_one(
             {"username": session['user']},
-            {"$push": {"blogs": form_data}},
+            {"$push": {"blogs": {"$oid":inserted_blog_id}}},
             upsert=True
         )
+
         flash("Thank you for contributing!")
         return redirect(url_for("home"))
     return render_template('contribute.html')
@@ -125,8 +137,12 @@ def contribute():
 def author():
     if request.method == 'GET':
         author_username = request.args.get('author_username')
-        author_data =  db_collection.find_one({"username": author_username})
-    return render_template("author.html", author_data=author_data)
+        author_data =  user_collection.find_one({"username": author_username})
+        blog_data = []
+        blog_objects = blog_collection.find({"_id": {"$in": author_data['blogs']}})
+        for blog in blog_objects:
+            blog_data.append(blog)
+    return render_template("author.html", author_data=author_data, blog_data=blog_data)
 
 @app.route('/article', methods=['GET', 'POST'])
 def article():
@@ -134,24 +150,20 @@ def article():
         try:
             blog_title = request.args.get('blog_title')
             author_username = request.args.get('author_username')
-            blog = db_collection.find_one({
-                "username": author_username,
-                "blogs.title": blog_title
-            }, {
-                "blogs.$": 1
+            blog = blog_collection.find_one({
+                "title": blog_title,
+                "author_username": author_username,
             })
-            if blog:
-                blog_data = blog["blogs"][0]
         except:
             flash("Error retrieving the document")
             return redirect(url_for("home"))
         if 'user' in session:
             # Add article to view history
-            db_collection.update_one(
+            user_collection.update_one(
                 {"username": session['user']},
-                {"$push": {"view_history":{"title": blog_title, "author_username": author_username},}})
+                {"$push": {"view_history":{"title": blog_title, "author_username": author_username, "date_viewed": str(datetime.now().today())},}})
 
-    return render_template("article.html", blog_data=blog_data)
+    return render_template("article.html", blog_data=blog)
 
 if __name__ == "__main__":
     app.run(debug=True)
