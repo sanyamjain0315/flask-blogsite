@@ -1,49 +1,57 @@
-# Script to generate dummy data for mongodb database
-
-from pymongo import MongoClient
-from faker import Faker
+import random
+import faker
 from datetime import datetime
+import pymongo
 import os
 
+fake = faker.Faker()
 
-# Set up the MongoDB client
-client = MongoClient(os.environ.get('MONGODB_URI'))
-db = client['blog_site']
-db_collection = db['blog_data']
-
-# Create a Faker instance for generating fake data
-fake = Faker()
-
-# Generate 100 sample blogs
-for _ in range(100):
-    # Generate random user details
-    username = fake.user_name()
-    full_name = fake.name()
-    email = fake.email()
-
-    # Generate a random number of blogs for each user
-    num_blogs = fake.random_int(min=1, max=5)
-
-    # Generate blogs for the user
-    blogs = []
-    for _ in range(num_blogs):
-        blog = {
-            "title": fake.sentence(nb_words=5),
-            "author_name": full_name,
-            "author_username": username,
-            "date_created": str(datetime.now().today()),
-            "content": fake.paragraph(nb_sentences=5),
-        }
-        blogs.append(blog)
-
-    # Create the user document with blogs
-    user_data = {
-        "username": username,
-        "full_name": full_name,
-        "email": email,
-        "blogs": blogs,
-        "view_history":[]
+# Function to generate a random blog entry
+def generate_blog_entry():
+    title = fake.sentence(nb_words=6, variable_nb_words=True)
+    author_name = fake.name()
+    author_username = fake.user_name()
+    date_created = fake.date_time_this_decade()
+    content = fake.paragraphs(nb=5)
+    return {
+        "title": title,
+        "author_name": author_name,
+        "author_username": author_username,
+        "date_created": date_created,
+        "content": content,
     }
 
-    # Insert the user document into the collection
-    db_collection.insert_one(user_data)
+# Function to generate view history for a user
+def generate_view_history(blogs):
+    num_viewed = random.randint(0, min(len(blogs), 5))
+    blogs_corpus = []
+    for n_user in blogs:
+        for blog in n_user['blogs']:
+            blogs_corpus.append(blog)
+    viewed_blogs = random.sample(blogs_corpus, num_viewed)
+    return [{"title":blog["title"], "author_username":blog["author_username"]} for blog in viewed_blogs]
+
+# Establish a connection to MongoDB
+client = pymongo.MongoClient(os.environ.get('MONGODB_URI'))
+db = client["blog_site"]
+collection = db["blog_data"]
+
+# Generate dummy data for multiple users
+users = []
+for _ in range(100):
+    user = {
+        "username": fake.user_name(),
+        "full_name": fake.name(),
+        "email": fake.email(),
+        "blogs": [generate_blog_entry() for _ in range(random.randint(0, 5))],
+        "view_history": []
+    }
+    users.append(user)
+
+# Populate view_history for each user
+for user in users:
+    user["view_history"] = generate_view_history(users)
+
+# Insert the generated data into MongoDB
+collection.insert_many(users)
+

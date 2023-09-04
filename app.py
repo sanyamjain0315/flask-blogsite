@@ -149,7 +149,7 @@ def article():
             # Add article to view history
             db_collection.update_one(
                 {"username": session['user']},
-                {"$push": {"view_history":blog_title}})
+                {"$push": {"view_history":{"title": blog_title, "author_username": author_username},}})
 
     return render_template("article.html", blog_data=blog_data)
 
